@@ -23,7 +23,7 @@ public:
     }; };
 
     sf::Vector2f windowPercentToWorld(const sf::Vector2f& pWindowPercent) { return {
-        pWindowPercent * mWindowSize
+        windowToWorld(pWindowPercent * mWindowSize)
     }; };
 
     sf::Vector2f worldToWindowPercent(const sf::Vector2f& pWorld) {
