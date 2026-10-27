@@ -122,6 +122,8 @@ int main() {
         player.update();
         // camera
 
+        float playerXPercent = camera.worldToWindowPercent(player.position).x;
+
         // TODO: Remove this line and replace it with code that determines if the player's (center)
         // is between the two green lines (open space), in the soft exclusion zones (between the
         // green and red lines), or in the hard exclusion zones (beyond either of the red lines).
@@ -131,7 +133,26 @@ int main() {
         // If the player is in the soft exclusion zones, the camera should softly translate over
         // multiple frames (via an exponential moving average) until the player's center is aligned
         // with the violated soft boundary. Use SOFT_CAMERA_ALPHA for the alpha value.
-        //
+        float softPercent = 0;
+        if (playerXPercent < SOFT_LIMIT_PERCENT) {
+            softPercent = SOFT_LIMIT_PERCENT;
+        } else if (playerXPercent > 1 - SOFT_LIMIT_PERCENT) {
+            softPercent = 1 -  SOFT_LIMIT_PERCENT;
+        }
+
+        if (softPercent != 0) {
+            //Ema: Sn = Sn-1 + a(Xn - Sn-1) Note n-1 and n are subscript
+            //a = SOFT_CAMERA_ALPHA
+            //Sn = mViewCenterWorld
+            //Sn-1 = softPercent to world cord
+            //Xn = player pos
+            //Xn - Sn-1 = softAMult
+
+            float sNMinus = camera.windowPercentToWorld({softPercent, 0}).x;
+            float softAMult = player.position.x - sNMinus;
+            camera.translateWorld({SOFT_CAMERA_ALPHA * softAMult , 0});
+        }
+
         // If the player is in the hard exclusion zones, the camera should hard-adjust so that
         // the player's center is always kept at most *at* the red lines. This means that the
         // player center must NEVER pass the red lines.
