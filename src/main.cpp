@@ -156,7 +156,21 @@ int main() {
         // If the player is in the hard exclusion zones, the camera should hard-adjust so that
         // the player's center is always kept at most *at* the red lines. This means that the
         // player center must NEVER pass the red lines.
-        //
+
+        float hardPercent = 0;
+        if (playerXPercent < HARD_LIMIT_PERCENT) {
+            hardPercent = HARD_LIMIT_PERCENT;
+        } else if (playerXPercent > 1 - HARD_LIMIT_PERCENT) {
+            hardPercent = 1 -  HARD_LIMIT_PERCENT;
+        }
+
+        if (hardPercent != 0) {
+            //no a for hard snap.
+            float redPos = camera.windowPercentToWorld({hardPercent, 0}).x;
+
+            camera.translateWorld({player.position.x - redPos , 0});
+        }
+
         // Use SOFT_LIMIT_PERCENT and HARD_LIMIT_PERCENT to parameterize the green and red
         // line positions.
         //camera.setCameraCenter({player.position.x, WINDOW_HEIGHT * 0.5f});
